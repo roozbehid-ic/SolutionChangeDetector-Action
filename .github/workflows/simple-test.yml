@@ -1,0 +1,23 @@
+name: test-simple-solution
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/simple-test.yml"
+      - "action.yml"
+
+jobs:
+  test:
+    name: "Test: "
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      
+      - name: Simple test
+        uses: ./
+        with:
+          solution_path: "myfile.sln"
