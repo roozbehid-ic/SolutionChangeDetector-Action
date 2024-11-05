@@ -2,18 +2,22 @@ name: Solution Dependency Check
 description: Analyze visual studio (.sln) file and all projects within it and give list of all dependency folders
 author: Roozbeh Gh.
 
+branding:
+  icon: 'user-x'
+  color: 'purple'
+  
 inputs:
   solution_path:
     description: 'Path to the .sln file'
     required: true
     type: string
 
-jobs:
-  check-dependencies:
-    runs-on: ubuntu-latest
-
+runs:
+    using: "composite"
+    
     steps:
       - name: Install NuGet Package
+        shell: pwsh
         run: |
           pwsh -Command "Install-Package RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Source https://www.nuget.org/api/v2"
       

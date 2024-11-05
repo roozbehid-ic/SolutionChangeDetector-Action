@@ -11,13 +11,12 @@ on:
 
 jobs:
   test:
-    name: "Test: "
+    name: "Test: github action"
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v3
       
-      - name: Simple test
-        uses: ./
+      - uses: roozbehid-ic/SolutionChangeDetector-Action@main
         with:
           solution_path: "myfile.sln"
