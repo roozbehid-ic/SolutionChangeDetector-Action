@@ -83,6 +83,6 @@ runs:
           
           $result
 
-          echo "dependency_list=$result" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          echo "dependency_list<<EOF`n$result`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           
         
