@@ -5,12 +5,33 @@ author: Roozbeh Gh.
 branding:
   icon: 'user-x'
   color: 'purple'
-  
+
 inputs:
   solution_path:
     description: 'Path to the .sln file'
     required: true
     type: string
+  repo_path:
+    description: 'Path to repository, if not provided will use default'
+    required: false
+    type: string
+    default: ${{ github.workspace }}
+  operation_mode:
+    description: 'Modes of operation : external_git, internal_git, combined_git, file'
+    required: false
+    type: string
+    default: internal_git
+  git_id_path_filepath:
+    description: 'Points to a file having format of %(objectname),%(path) from git'
+    required: false
+    type: string
+
+
+outputs:
+  dependency_list:
+    description: "Dependency list"
+    value: ${{ steps.analyze_dependencies.outputs.dependency_list }}
+
 
 runs:
     using: "composite"
@@ -19,14 +40,49 @@ runs:
       - name: Install NuGet Package
         shell: pwsh
         run: |
-          pwsh -Command "Install-Package RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Source https://www.nuget.org/api/v2"
+          $installed = install-package -Name RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Destination . -SkipDependencies -Source https://www.nuget.org/api/v2 -force
+
       
       - name: Run Dependency Analyzer
         shell: pwsh
         id: analyze_dependencies
         run: |
-         
-          Import-Module RoozSoft.SolutionDependencyAnalyzer-nodep
-          $result = Get-SolutionDependencies -Path $solutionPath
+          $pkgroot = "$($installed.Name).$($installed.Version)"
+          $pkgroot_lib = "$pkgroot/lib/net$([System.Environment]::Version.Major).0"
+
+          $info = dotnet --info
+          $platform = ($info | Select-String '^\s*OS Platform:\s+(\w+)$')[0].Matches.Groups[1].Value -replace 'windows', 'win'
+          $architecture = ($info | Select-String '^\s*Architecture:\s+(\w+)$')[0].Matches.Groups[1].Value                          
+          $runtime = "${platform}-${architecture}".ToLower()
+          
+          Copy-Item $pkgroot/runtimes/$runtime/native/*.*   $pkgroot_lib
+          [System.Reflection.Assembly]::LoadFrom("$pkgroot_lib/RoozSoft.SolutionDependencyAnalyzer.dll")
+
+          $operation_mode = "${{ inputs.operation_mode }}"
+          $git_id_path_file = "${{ inputs.git_id_path_filepath }}"
+
+          $repo = switch ($operation_mode ) {
+           external_git {
+            New-Object RoozSoft.SolutionDependencyAnalyzer.ExternalGitRepository("${{ inputs.repo_path }}")
+           }
+           internal_git {
+            New-Object RoozSoft.SolutionDependencyAnalyzer.InternalGitRepository("${{ inputs.repo_path }}",$git_id_path_file)
+           }
+           file {
+            New-Object RoozSoft.SolutionDependencyAnalyzer.FileSystemRepository("${{ inputs.repo_path }}")
+           }
+           combined_git {
+            $tmpFile = New-TemporaryFile
+            git ls-tree --format "%(objectname),%(path)" -r HEAD | Out-File $tmpFile
+            New-Object RoozSoft.SolutionDependencyAnalyzer.InternalGitRepository("${{ inputs.repo_path }}",$tmpFile)
+           }
+           default {
+            New-Object RoozSoft.SolutionDependencyAnalyzer.InternalGitRepository("${{ inputs.repo_path }}",$git_id_path_file)
+           }
+          }
+
+          $SlnAnalyzer = New-Object RoozSoft.SolutionDependencyAnalyzer.SolutionDependencyAnalyzer($repo)
+          $result = $SlnAnalyzer.GetDependencyList("${{ inputs.solution_path }}")
+
           Write-Output "::set-output name=dependency_list::$result"
         

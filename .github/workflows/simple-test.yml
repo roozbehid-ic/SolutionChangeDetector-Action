@@ -13,10 +13,13 @@ jobs:
   test:
     name: "Test: github action"
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          repository: roozbehid-ic/SolutionDependencyAnalyzer
       
       - uses: roozbehid-ic/SolutionChangeDetector-Action@main
         with:
-          solution_path: "myfile.sln"
+          solution_path: "SolutionDependencyAnalyzer.sln"
