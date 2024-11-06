@@ -18,18 +18,10 @@ This list can be used to perform sparse checkouts, detect changes, or determine 
 This action requires your solution file path and your repository to be available in the workflow context. Ensure you have a Visual Studio solution file (.sln) in your repository.
 
 # Usage
-Look into `.github/workflows/simple-test,yml` for more comprehensive usage
+Look into [.github/workflows/simple-test.yml](.github/workflows/simple-test.yml) for more comprehensive usage
 Add SolutionChangeDetector-Action to your GitHub Actions workflow:
 
 ``` yaml
-
-name: Dependency Analysis Workflow
-
-on:
-  push:
-    paths:
-      - '**.sln'  # Trigger when solution file changes
-
 jobs:
   analyze-dependencies:
     runs-on: ubuntu-latest
@@ -37,6 +29,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          sparse-checkout: . # if you use any more other than file you can jsut opt to not checkout any file to make things super fast
 
       - name: Run Solution Dependency Analysis
         uses: https://github.com/roozbehid-ic/SolutionChangeDetector-Action@main
