@@ -17,7 +17,8 @@ This list can be used to perform sparse checkouts, detect changes, or determine 
 ## Pre-Requisites
 This action requires your solution file path and your repository to be available in the workflow context. Ensure you have a Visual Studio solution file (.sln) in your repository.
 
-Usage
+# Usage
+Look into `.github/workflows/simple-test,yml` for more comprehensive usage
 Add SolutionChangeDetector-Action to your GitHub Actions workflow:
 
 ``` yaml
@@ -38,36 +39,19 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run Solution Dependency Analysis
-        uses: https://github.com/roozbehid-ic/SolutionChangeDetector-Action@v1
+        uses: https://github.com/roozbehid-ic/SolutionChangeDetector-Action@main
         with:
           solution_path: 'path/to/your/solution.sln'
-          git_mode: 'internal' # Options: internal, external, system
-          id_path_filename: 'id_path_file.txt' # Optional for internal mode
+          repo_path: github.workspace # Optional: if you want to provide anothre repository path
+          operation_mode: 'internal_git' # Optional : Options: external_git, internal_git, combined_git, file
+          git_id_path_filepath: 'id_path_file.txt' # Optional can be used to boost performance of internal_git mode on huge monorepos
+          binary_folder_path: 'path/to/where/store/or/load/binaries' # Optional in case you want to precache binaries or store them in special folder
+          download_as_nuget: true # Optional by default package is downloaded from nuget, if you say false here you have to provide it someway to this
 ```
 
-# Inputs
-- solution_path (required): Path to the .sln file in your repository.
-- git_mode (optional): Specifies the mode for dependency retrieval:
-- internal: Uses an internal Git library, fastest if id_path_filename is provided.
-- external: Uses Git executable for dependency analysis.
-- system: Uses regular file access.
-- id_path_filename (optional): File to provide additional Git data for internal mode (e.g., git ls-tree --format "%(objectname),%(path)" -r HEAD).
 
 # Outputs
-dependency_folders: Lists folders required by the solution, which can be used for sparse checkouts or as inputs to subsequent build or deploy steps.
-Example Workflow with Output
-
-``` yaml
-- name: Run Solution Dependency Analysis
-  id: analyze
-  uses: https://github.com/roozbehid-ic/SolutionChangeDetector-Action@v1
-  with:
-    solution_path: 'path/to/your/solution.sln'
-    git_mode: 'internal'
-
-- name: Display Dependency Folders
-  run: echo "Folders: ${{ steps.analyze.outputs.dependency_folders }}"
-```
+- dependency_list: Lists folders required by the solution, which can be used for sparse checkouts or as inputs to subsequent build or deploy steps.
 
 # License
 This project is licensed under the MIT License.
