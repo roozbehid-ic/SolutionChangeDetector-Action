@@ -25,6 +25,10 @@ inputs:
     description: 'Points to a file having format of %(objectname),%(path) from git'
     required: false
     type: string
+  binary_folder_path:
+    description: 'Path where RoozSoft.SolutionDependencyAnalyzer package could be found. Under this directory should be lib and runtimes folders exist'
+    reqired: false
+    type: string
 
 
 outputs:
@@ -81,7 +85,7 @@ runs:
           $SlnAnalyzer = New-Object RoozSoft.SolutionDependencyAnalyzer.SolutionDependencyAnalyzer($repo)
           $result = $SlnAnalyzer.GetDependencyList("${{ inputs.solution_path }}")
           
-          $result
+          echo "dependency_list<<EOF`n$result`nEOF" 
 
           echo "dependency_list<<EOF`n$result`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           
