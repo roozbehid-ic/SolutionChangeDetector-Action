@@ -1,5 +1,5 @@
-# SolutionChangeDetector-Action
-SolutionChangeDetector-Action is a GitHub Action that leverages the SolutionDependencyAnalyzer library to parse Visual Studio solution (.sln) files, identify project dependencies, and output a list of required folders. 
+# Solution Change Detector Action
+`SolutionChangeDetector-Action` is a GitHub Action that leverages the [SolutionDependencyAnalyzer](https://github.com/roozbehid-ic/SolutionDependencyAnalyzer) library to parse Visual Studio solution (.sln) files, identify project dependencies, and output a list of required folders. 
 This list can be used to perform sparse checkouts, detect changes, or determine if a solution requires rebuilding, making it ideal for monorepo and large-repo environments.
 
 # Features
@@ -18,8 +18,7 @@ This list can be used to perform sparse checkouts, detect changes, or determine 
 This action requires your solution file path and your repository to be available in the workflow context. Ensure you have a Visual Studio solution file (.sln) in your repository.
 
 # Usage
-Look into [.github/workflows/simple-test.yml](.github/workflows/simple-test.yml) for more comprehensive usage
-Add SolutionChangeDetector-Action to your GitHub Actions workflow:
+Look into [.github/workflows/simple-test.yml](.github/workflows/simple-test.yml) for more comprehensive usage.
 
 ``` yaml
 jobs:
@@ -44,8 +43,8 @@ jobs:
           download_as_nuget: true # Optional by default package is downloaded from nuget, if you say false here you have to provide it someway to this
 ```
 
-
 # Outputs
+Action will produce following outputs which you can use with syntax of `${{ steps.id_of_step.outputs.dependency_list }}`.
 - dependency_list: Lists folders required by the solution, which can be used for sparse checkouts or as inputs to subsequent build or deploy steps.
 
 # License
