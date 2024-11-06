@@ -42,19 +42,15 @@ runs:
         id: analyze_dependencies
         run: |
           $ProgressPreference = 'SilentlyContinue'
-          $installed = install-package -Name RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Destination . -SkipDependencies -Source https://www.nuget.org/api/v2 -force
-          $installed
+          $installed = install-package -Name RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Destination . -SkipDependencies -Source https://www.nuget.org/api/v3 -force
 
           $pkgroot = "$($installed.Name).$($installed.Version)"
-          $pkgroot
           $pkgroot_lib = "$pkgroot/lib/net$([System.Environment]::Version.Major).0"
-          $pkgroot_lib
 
           $info = dotnet --info
           $platform = ($info | Select-String '^\s*OS Platform:\s+(\w+)$')[0].Matches.Groups[1].Value -replace 'windows', 'win'
           $architecture = ($info | Select-String '^\s*Architecture:\s+(\w+)$')[0].Matches.Groups[1].Value                          
           $runtime = "${platform}-${architecture}".ToLower()
-          $runtime 
           
           Copy-Item $pkgroot/runtimes/$runtime/native/*.*   $pkgroot_lib
           [System.Reflection.Assembly]::LoadFrom("$pkgroot_lib/RoozSoft.SolutionDependencyAnalyzer.dll")
@@ -84,6 +80,8 @@ runs:
 
           $SlnAnalyzer = New-Object RoozSoft.SolutionDependencyAnalyzer.SolutionDependencyAnalyzer($repo)
           $result = $SlnAnalyzer.GetDependencyList("${{ inputs.solution_path }}")
-
+          
+          $result
+          
           Write-Output "::set-output name=dependency_list::$result"
         
