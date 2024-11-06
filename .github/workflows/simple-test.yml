@@ -13,6 +13,8 @@ jobs:
   test:
     name: "Test: github action"
     runs-on: ubuntu-latest
+    outputs:
+        dependency_list: ${{ steps.dependency.outputs.dependency_list }}    
 
     steps:
       - name: Checkout
@@ -28,4 +30,15 @@ jobs:
       - name: Print list
         shell: pwsh
         run: |
-            Write-Host ${{ steps.dependency.dependency_list }}
+              Write-Host ${{ steps.dependency.outputs.dependency_list  }}          
+  next_job:
+    name: "next job"
+    runs-on: ubuntu-latest
+    needs: test
+
+
+    steps:
+      - name: Print list
+        shell: pwsh
+        run: |
+            Write-Host ${{ needs.test.outputs.dependency_list }}
