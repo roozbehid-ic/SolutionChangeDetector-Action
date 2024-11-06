@@ -21,5 +21,11 @@ jobs:
           repository: roozbehid-ic/SolutionDependencyAnalyzer
       
       - uses: roozbehid-ic/SolutionChangeDetector-Action@main
+        id: dependency
         with:
           solution_path: "SolutionDependencyAnalyzer.sln"
+
+      - name: Print list
+        shell: pwsh
+        run: |
+            Write-Host ${{ steps.dependency.dependency_list }}
