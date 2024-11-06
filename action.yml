@@ -42,7 +42,7 @@ runs:
         id: analyze_dependencies
         run: |
           $ProgressPreference = 'SilentlyContinue'
-          $installed = install-package -Name RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Destination . -SkipDependencies -Source https://www.nuget.org/api/v3 -force
+          $installed = install-package -Name RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Destination . -SkipDependencies -Source https://api.nuget.org/v3/index.json -force
 
           $pkgroot = "$($installed.Name).$($installed.Version)"
           $pkgroot_lib = "$pkgroot/lib/net$([System.Environment]::Version.Major).0"
