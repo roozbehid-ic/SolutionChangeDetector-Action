@@ -41,6 +41,7 @@ runs:
         shell: pwsh
         run: |
           $installed = install-package -Name RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Destination . -SkipDependencies -Source https://www.nuget.org/api/v2 -force
+          $installed
 
       
       - name: Run Dependency Analyzer
