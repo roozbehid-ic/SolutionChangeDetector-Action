@@ -64,7 +64,7 @@ jobs:
       - name: Print list
         shell: pwsh
         run: |
-            Write-Host "${{ needs.test.outputs.dependency_list }}"
+            Write-Host "${{ needs.test_linux.outputs.dependency_list }}"
 
   next_job_windows:
     name: "next job"
@@ -76,4 +76,4 @@ jobs:
       - name: Print list
         shell: pwsh
         run: |
-            Write-Host "${{ needs.test.outputs.dependency_list }}"            
+            Write-Host "${{ needs.test_windows.outputs.dependency_list }}"            
