@@ -29,6 +29,12 @@ inputs:
     description: 'Path where RoozSoft.SolutionDependencyAnalyzer package could be found. Under this directory should be lib and runtimes folders exist'
     reqired: false
     type: string
+    default: .
+  download_as_nuget:
+    description: 'Download RoozSoft.SolutionDependencyAnalyzer package from nuget.org'
+    reqired: false
+    type: boolean
+    default: true
 
 
 outputs:
@@ -45,10 +51,14 @@ runs:
         shell: pwsh
         id: analyze_dependencies
         run: |
-          $ProgressPreference = 'SilentlyContinue'
-          $installed = install-package -Name RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Destination . -SkipDependencies -Source https://api.nuget.org/v3/index.json -force
+          
+          $pkgroot = "${{ inputs.binary_folder_path }}"
+          if ($${{ inputs.download_as_nuget}}){
+            $ProgressPreference = 'SilentlyContinue'
+            $installed = install-package -Name RoozSoft.SolutionDependencyAnalyzer-nodep -Scope CurrentUser -Destination ${{ inputs.binary_folder_path }} -SkipDependencies -Source https://api.nuget.org/v3/index.json -force
+            $pkgroot += "/$($installed.Name).$($installed.Version)"
+          }
 
-          $pkgroot = "$($installed.Name).$($installed.Version)"
           $pkgroot_lib = "$pkgroot/lib/net$([System.Environment]::Version.Major).0"
 
           $info = dotnet --info
@@ -85,8 +95,8 @@ runs:
           $SlnAnalyzer = New-Object RoozSoft.SolutionDependencyAnalyzer.SolutionDependencyAnalyzer($repo)
           $result = $SlnAnalyzer.GetDependencyList("${{ inputs.solution_path }}")
           
-          echo "dependency_list<<EOF`n$result`nEOF" 
+          echo "dependency_list<<EOF`n$($result -join "`n")`nEOF" 
 
-          echo "dependency_list<<EOF`n$result`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          echo "dependency_list<<EOF`n$($result -join "`n")`nEOF" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           
         
